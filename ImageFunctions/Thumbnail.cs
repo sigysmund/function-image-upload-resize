@@ -83,39 +83,6 @@ namespace ImageFunctions
 
             return encoder;
         }
-
-        private static async bool HandleImageVariantConversion(string convName, string extension, 
-                                                           StorageBlobCreatedEventData eventData, Stream input,
-                                                           IImageEncoder encoder, ILogger log)
-        {
-            try
-            {
-                var thumbnailWidth = Convert.ToInt32(Environment.GetEnvironmentVariable($"{convName}_WIDTH"));
-                var thumbContainerName = Environment.GetEnvironmentVariable($"{convName}_CONTAINER_NAME");
-                var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
-                var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
-                var blobName = GetBlobNameFromUrl(eventData.Url);
-
-                using (var output = new MemoryStream())
-                using (Image<Rgba32> image = Image.Load(input))
-                {
-                    var divisor = image.Width / thumbnailWidth;
-                    var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
-
-                    image.Mutate(x => x.Resize(thumbnailWidth, height));
-                    image.Save(output, encoder);
-                    output.Position = 0;
-                    await blobContainerClient.UploadBlobAsync(blobName, output);
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.LogInformation(ex.Message);
-                return false;
-            }
-
-        }
         
         [FunctionName("Converter")]
         public static async Task Run(
@@ -136,10 +103,23 @@ namespace ImageFunctions
                         var success = false;
                         foreach (var convName in CONVERSION_VARIANTS)
                         {
-                            success = HandleImageVariantConversion(convName, extension, createdEvent, input, encoder, log);
-                            if (!success)
+                            var thumbnailWidth = Convert.ToInt32(Environment.GetEnvironmentVariable($"{convName}_WIDTH"));
+                            var thumbContainerName = Environment.GetEnvironmentVariable($"{convName}_CONTAINER_NAME");
+                            var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
+                            var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
+                            var blobName = GetBlobNameFromUrl(createdEvent.Url);
+
+                            using (var output = new MemoryStream())
+                            using (Image<Rgba32> image = Image.Load(input))
                             {
-                                log.LogInformation($"Conversion of variant {convName} could not be handled successfully for: {createdEvent.Url}");
+                                var divisor = image.Width / thumbnailWidth;
+                                var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+
+                                image.Mutate(x => x.Resize(thumbnailWidth, height));
+                                image.Save(output, encoder);
+                                output.Position = 0;
+                                await blobContainerClient.UploadBlobAsync(blobName, output);
+                                return true;
                             }
                         }
                     }
