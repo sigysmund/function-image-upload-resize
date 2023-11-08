@@ -22,8 +22,16 @@ Before running this sample locally, you need to add your connection string to th
   "Values": {
     "AzureWebJobsStorage": "<STORAGE_ACCOUNT_CONNECTION_STRING>",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-    "THUMBNAIL_CONTAINER_NAME": "thumbnails",
-    "THUMBNAIL_WIDTH":  "100",
+    "THUMBNAIL_128_SMALL_CONTAINER_NAME": "thumb-1",
+    "THUMBNAIL_128_SMALL_WIDTH": "128",
+    "THUMBNAIL_256_CONTAINER_NAME": "thumb-2",
+    "THUMBNAIL_256_WIDTH": "256",
+    "THUMBNAIL_512_CONTAINER_NAME": "thumb-4",
+    "THUMBNAIL_512_WIDTH": "512",
+    "NORMAL_CONTAINER_NAME": "image",
+    "NORMAL_WIDTH": "1280",
+    "FULL_CONTAINER_NAME": "full",
+    "FULL_WIDTH": "2400",
     "datatype": "binary"
   }
 }
