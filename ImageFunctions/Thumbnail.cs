@@ -85,7 +85,7 @@ namespace ImageFunctions
         }
 
         private static bool HandleImageVariantConversion(string convName, string extension, 
-                                                           StorageBlobCreatedEventData eventData, IImageEncode encoder, 
+                                                           StorageBlobCreatedEventData eventData, IImageEncoder encoder, 
                                                            ILogger log)
         {
             try
