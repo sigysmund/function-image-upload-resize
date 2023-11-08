@@ -139,7 +139,7 @@ namespace ImageFunctions
                             success = HandleImageVariantConversion(convName, extension, createdEvent, encoder, log);
                             if (!success)
                             {
-                                log.LogInformation($"Conversion of variant {convName} could not be handled successfully for: {createdEvent.Url}")
+                                log.LogInformation($"Conversion of variant {convName} could not be handled successfully for: {createdEvent.Url}");
                             }
                         }
                     }
