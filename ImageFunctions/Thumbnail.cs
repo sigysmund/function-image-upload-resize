@@ -84,9 +84,9 @@ namespace ImageFunctions
             return encoder;
         }
 
-        private static bool HandleImageVariantConversion(string convName, string extension, 
-                                                           StorageBlobCreatedEventData eventData, IImageEncoder encoder, 
-                                                           ILogger log)
+        private static async bool HandleImageVariantConversion(string convName, string extension, 
+                                                           StorageBlobCreatedEventData eventData, Stream input,
+                                                           IImageEncoder encoder, ILogger log)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace ImageFunctions
                 var thumbContainerName = Environment.GetEnvironmentVariable($"{convName}_CONTAINER_NAME");
                 var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
                 var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
-                var blobName = GetBlobNameFromUrl(createdEvent.Url);
+                var blobName = GetBlobNameFromUrl(eventData.Url);
 
                 using (var output = new MemoryStream())
                 using (Image<Rgba32> image = Image.Load(input))
@@ -109,7 +109,7 @@ namespace ImageFunctions
                     return true;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 log.LogInformation(ex.Message);
                 return false;
@@ -117,7 +117,7 @@ namespace ImageFunctions
 
         }
         
-        [FunctionName("Thumbnail")]
+        [FunctionName("Converter")]
         public static async Task Run(
             [EventGridTrigger]EventGridEvent eventGridEvent,
             [Blob("{data.url}", FileAccess.Read)] Stream input,
@@ -136,7 +136,7 @@ namespace ImageFunctions
                         var success = false;
                         foreach (var convName in CONVERSION_VARIANTS)
                         {
-                            success = HandleImageVariantConversion(convName, extension, createdEvent, encoder, log);
+                            success = HandleImageVariantConversion(convName, extension, createdEvent, input, encoder, log);
                             if (!success)
                             {
                                 log.LogInformation($"Conversion of variant {convName} could not be handled successfully for: {createdEvent.Url}");
