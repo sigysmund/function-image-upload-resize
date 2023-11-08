@@ -96,7 +96,6 @@ namespace ImageFunctions
 
                     if (encoder != null)
                     {
-                        var success = false;
                         foreach (var convName in conversionVariants)
                         {
                             var thumbnailWidth = Convert.ToInt32(Environment.GetEnvironmentVariable($"{convName}_WIDTH"));
