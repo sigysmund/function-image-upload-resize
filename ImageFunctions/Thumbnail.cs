@@ -28,22 +28,8 @@ using System.Threading.Tasks;
 namespace ImageFunctions
 {
     public static class Thumbnail
-    {
-        public static readonly string[] CONVERAION_VARIANTS;
-        
+    {   
         private static readonly string BLOB_STORAGE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-
-        static Thumbnail()
-        {
-            CONVERSION_VARIANTS = new string[]
-            {
-                "THUMBNAIL_128",
-                "THUMBNAIL_256",
-                "THUMBNAIL_512",
-                "NORMAL",
-                "FULL",
-            };
-        }
         
         private static string GetBlobNameFromUrl(string bloblUrl)
         {
@@ -90,6 +76,16 @@ namespace ImageFunctions
             [Blob("{data.url}", FileAccess.Read)] Stream input,
             ILogger log)
         {
+
+            string[] conversionVariants = new string[]
+            {
+                "THUMBNAIL_128",
+                "THUMBNAIL_256",
+                "THUMBNAIL_512",
+                "NORMAL",
+                "FULL",
+            };
+
             try
             {
                 if (input != null)
@@ -101,7 +97,7 @@ namespace ImageFunctions
                     if (encoder != null)
                     {
                         var success = false;
-                        foreach (var convName in CONVERSION_VARIANTS)
+                        foreach (var convName in conversionVariants)
                         {
                             var thumbnailWidth = Convert.ToInt32(Environment.GetEnvironmentVariable($"{convName}_WIDTH"));
                             var thumbContainerName = Environment.GetEnvironmentVariable($"{convName}_CONTAINER_NAME");
@@ -119,7 +115,6 @@ namespace ImageFunctions
                                 image.Save(output, encoder);
                                 output.Position = 0;
                                 await blobContainerClient.UploadBlobAsync(blobName, output);
-                                return true;
                             }
                         }
                     }
