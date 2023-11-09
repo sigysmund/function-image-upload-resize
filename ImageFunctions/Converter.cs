@@ -18,7 +18,6 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.IO;
@@ -27,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace ImageFunctions
 {
-    public static class Thumbnail
+    public static class Converter
     {   
         private static readonly string BLOB_STORAGE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
         
@@ -105,7 +104,7 @@ namespace ImageFunctions
                             var blobName = GetBlobNameFromUrl(createdEvent.Url);
 
                             using (var output = new MemoryStream())
-                            using (Image image = Image.Load(input))
+                            using (var image = Image.Load(input))
                             {
                                 var divisor = (decimal) image.Width / thumbnailWidth;
                                 var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
