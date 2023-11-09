@@ -332,3 +332,4 @@ ASALocalRun/
 
 # Functions local settings
 local.settings.json
+.vscode/
